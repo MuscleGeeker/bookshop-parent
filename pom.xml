@@ -33,9 +33,9 @@
 	</build>
 
 	<modules>
-		<module>../bookshop</module>
-		<module>../bookshop-admin</module>
-		<module>../bookshop-api</module>
-		<module>../bookshop-web</module>
+		<module>bookshop</module>
+		<module>bookshop-admin</module>
+		<module>bookshop-api</module>
+		<module>bookshop-web</module>
 	</modules>
 </project>

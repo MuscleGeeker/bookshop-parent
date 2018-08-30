@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.lesson.aspect;
 
 import java.lang.annotation.Documented;
@@ -11,7 +8,6 @@ import java.lang.annotation.Target;
 
 /**
  * @author zhailiang
- *
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

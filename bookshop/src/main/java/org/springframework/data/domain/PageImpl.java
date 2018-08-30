@@ -1,14 +1,11 @@
-/**
- * 
- */
 package org.springframework.data.domain;
+
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.util.Assert;
 
 /**
  * @author zhailiang
@@ -16,139 +13,139 @@ import org.springframework.util.Assert;
  */
 public class PageImpl<T> extends Chunk<T> implements Page<T> {
 
-	private static final long serialVersionUID = 867755909294344406L;
+    private static final long serialVersionUID = 867755909294344406L;
 
-	private final long total;
-	private final Pageable pageable;
-	
-	public PageImpl() {
-		this(new ArrayList<T>());
-	}
+    private final long total;
+    private final Pageable pageable;
 
-	/**
-	 * Constructor of {@code PageImpl}.
-	 * 
-	 * @param content the content of this page, must not be {@literal null}.
-	 * @param pageable the paging information, can be {@literal null}.
-	 * @param total the total amount of items available. The total might be adapted considering the length of the content
-	 *          given, if it is going to be the content of the last page. This is in place to mitigate inconsistencies
-	 */
-	public PageImpl(List<T> content, Pageable pageable, long total) {
+    public PageImpl() {
+        this(new ArrayList<T>());
+    }
 
-		super(content, pageable);
+    /**
+     * Constructor of {@code PageImpl}.
+     *
+     * @param content  the content of this page, must not be {@literal null}.
+     * @param pageable the paging information, can be {@literal null}.
+     * @param total    the total amount of items available. The total might be adapted considering the length of the content
+     *                 given, if it is going to be the content of the last page. This is in place to mitigate inconsistencies
+     */
+    public PageImpl(List<T> content, Pageable pageable, long total) {
 
-		this.pageable = pageable;
-		this.total = !content.isEmpty() && pageable != null && pageable.getOffset() + pageable.getPageSize() > total
-				? pageable.getOffset() + content.size() : total;
-	}
+        super(content, pageable);
 
-	/**
-	 * Creates a new {@link PageImpl} with the given content. This will result in the created {@link Page} being identical
-	 * to the entire {@link List}.
-	 * 
-	 * @param content must not be {@literal null}.
-	 */
-	public PageImpl(List<T> content) {
-		this(content, null, null == content ? 0 : content.size());
-	}
+        this.pageable = pageable;
+        this.total = !content.isEmpty() && pageable != null && pageable.getOffset() + pageable.getPageSize() > total
+                ? pageable.getOffset() + content.size() : total;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.domain.Page#getTotalPages()
-	 */
-	@Override
-	public int getTotalPages() {
-		return getSize() == 0 ? 1 : (int) Math.ceil((double) total / (double) getSize());
-	}
+    /**
+     * Creates a new {@link PageImpl} with the given content. This will result in the created {@link Page} being identical
+     * to the entire {@link List}.
+     *
+     * @param content must not be {@literal null}.
+     */
+    public PageImpl(List<T> content) {
+        this(content, null, null == content ? 0 : content.size());
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.domain.Page#getTotalElements()
-	 */
-	@Override
-	public long getTotalElements() {
-		return total;
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.data.domain.Page#getTotalPages()
+     */
+    @Override
+    public int getTotalPages() {
+        return getSize() == 0 ? 1 : (int) Math.ceil((double) total / (double) getSize());
+    }
 
-	/* 
-	 * (non-Javadoc)
-	 * @see org.springframework.data.domain.Slice#hasNext()
-	 */
-	@Override
-	public boolean hasNext() {
-		return getNumber() + 1 < getTotalPages();
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.data.domain.Page#getTotalElements()
+     */
+    @Override
+    public long getTotalElements() {
+        return total;
+    }
 
-	/* 
-	 * (non-Javadoc)
-	 * @see org.springframework.data.domain.Slice#isLast()
-	 */
-	@Override
-	public boolean isLast() {
-		return !hasNext();
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.data.domain.Slice#hasNext()
+     */
+    @Override
+    public boolean hasNext() {
+        return getNumber() + 1 < getTotalPages();
+    }
 
-	/* 
-	 * (non-Javadoc)
-	 * @see org.springframework.data.domain.Slice#transform(org.springframework.core.convert.converter.Converter)
-	 */
-	@Override
-	public <S> Page<S> map(Converter<? super T, ? extends S> converter) {
-		return new PageImpl<S>(getConvertedContent(converter), pageable, total);
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.data.domain.Slice#isLast()
+     */
+    @Override
+    public boolean isLast() {
+        return !hasNext();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.data.domain.Slice#transform(org.springframework.core.convert.converter.Converter)
+     */
+    @Override
+    public <S> Page<S> map(Converter<? super T, ? extends S> converter) {
+        return new PageImpl<S>(getConvertedContent(converter), pageable, total);
+    }
 
-		String contentType = "UNKNOWN";
-		List<T> content = getContent();
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
 
-		if (content.size() > 0) {
-			contentType = content.get(0).getClass().getName();
-		}
+        String contentType = "UNKNOWN";
+        List<T> content = getContent();
 
-		return String.format("Page %s of %d containing %s instances", getNumber(), getTotalPages(), contentType);
-	}
+        if (content.size() > 0) {
+            contentType = content.get(0).getClass().getName();
+        }
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
+        return String.format("Page %s of %d containing %s instances", getNumber(), getTotalPages(), contentType);
+    }
 
-		if (this == obj) {
-			return true;
-		}
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
 
-		if (!(obj instanceof PageImpl<?>)) {
-			return false;
-		}
+        if (this == obj) {
+            return true;
+        }
 
-		PageImpl<?> that = (PageImpl<?>) obj;
+        if (!(obj instanceof PageImpl<?>)) {
+            return false;
+        }
 
-		return this.total == that.total && super.equals(obj);
-	}
+        PageImpl<?> that = (PageImpl<?>) obj;
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
+        return this.total == that.total && super.equals(obj);
+    }
 
-		int result = 17;
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
 
-		result += 31 * (int) (total ^ total >>> 32);
-		result += 31 * super.hashCode();
+        int result = 17;
 
-		return result;
-	}
-	
+        result += 31 * (int) (total ^ total >>> 32);
+        result += 31 * super.hashCode();
+
+        return result;
+    }
+
 
     /*
      * (non-Javadoc)
@@ -191,7 +188,7 @@ public class PageImpl<T> extends Chunk<T> implements Page<T> {
     }
 
 
-    /* 
+    /*
      * (non-Javadoc)
      * @see org.springframework.data.domain.Slice#nextPageable()
      */
@@ -238,7 +235,7 @@ public class PageImpl<T> extends Chunk<T> implements Page<T> {
 
     /**
      * Applies the given {@link Converter} to the content of the {@link Chunk}.
-     * 
+     *
      * @param converter must not be {@literal null}.
      * @return
      */
@@ -255,5 +252,5 @@ public class PageImpl<T> extends Chunk<T> implements Page<T> {
         return result;
     }
 
-	
+
 }
